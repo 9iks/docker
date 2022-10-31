@@ -1,0 +1,3 @@
+FROM mariadb:10.4-focal
+# author
+LABEL MAINTAINER="docker"

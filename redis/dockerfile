@@ -1,0 +1,10 @@
+FROM redis
+# author
+LABEL MAINTAINER="docker"
+
+# Mount the directory
+VOLUME /home/redis
+# Create a directory
+RUN mkdir -p /home/redis
+# The specified path
+WORKDIR /home/redis

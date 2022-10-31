@@ -1,0 +1,81 @@
+version : '3.8'
+services:
+  docker-mysql:
+    container_name: docker-mysql
+    image: mariadb:10.4-focal
+    restart: always
+    build:
+      context: ./mariadb
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mariadb/conf:/etc/mysql/conf.d
+      - ./mariadb/logs:/logs
+      - ./mariadb/data:/var/lib/mysql
+      - /etc/timezone:/etc/timezone
+      - /etc/localtime:/etc/localtime
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+  docker-redis:
+    container_name: docker-redis
+    image: redis
+    restart: always
+    build:
+      context: ./redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis/conf/redis.conf:/home/redis/redis.conf
+      - ./redis/data:/data
+      - /etc/timezone:/etc/timezone
+      - /etc/localtime:/etc/localtime
+    command: redis-server /home/redis/redis.conf
+  docker-nginx:
+    container_name: docker-nginx
+    image: nginx
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        reservations:
+          memory: 128M
+    build:
+      context: ./nginx
+      args:
+        ENABLED_MODULES: cachepurge brotli
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./www:/www
+      - ./nginx/conf/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/logs:/var/log/nginx
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/proxy:/etc/nginx/proxy
+      - ./nginx/cret:/etc/nginx/cret
+  docker-api:
+    container_name: docker-api
+    image: api:v1
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '0.75'
+          memory: 1280M
+    build:
+      context: ./java/api
+      dockerfile: dockerfile
+    ports:
+      - "8100:8100"
+    volumes:
+      - ./java/api/jar:/home/api
+      - /etc/timezone:/etc/timezone
+      - /etc/localtime:/etc/localtime
+    depends_on:
+      - docker-redis
+      - docker-mysql
+    links:
+      - docker-redis
+      - docker-mysql

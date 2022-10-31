@@ -1,0 +1,12 @@
+FROM  amazoncorretto:11
+# author
+LABEL MAINTAINER="docker"
+
+# Mount the directory
+VOLUME /home/api
+# Create a directory
+RUN mkdir -p /home/api
+# The specified path
+WORKDIR /home/api
+# start
+ENTRYPOINT ["java","-jar","-Xmx1g","-Xms1g","api-1.0.0-fat.jar"]
