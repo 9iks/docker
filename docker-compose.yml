@@ -16,6 +16,22 @@ services:
       - /etc/localtime:/etc/localtime
     environment:
       MYSQL_ROOT_PASSWORD: password
+  docker-mongo:
+    container_name: docker-mongo
+    image: mongo
+    restart: always
+    build:
+      context: ./mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./mongo/data:/data/db
+      - /etc/timezone:/etc/timezone
+      - /etc/localtime:/etc/localtime
+    # command: [--auth]
+    # environment:
+    #   MONGO_INITDB_ROOT_USERNAME: root
+    #   MONGO_INITDB_ROOT_PASSWORD: root
   docker-redis:
     container_name: docker-redis
     image: redis
